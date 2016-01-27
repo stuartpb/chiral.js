@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Chiral.js demo</title>
+</head>
+<body touch-action="none">
+  <img id="move-this" src="https://stuartpb.github.io/tf2-vai/tf/scout/kill_stunned.svg">
+  <script src="https://code.jquery.com/pep/0.4.1/pep.js"></script>
+  <script src="chiral.js"></script>
+  <script>
+    var translateX = 0, translateY = 0, scale = 1, rotate = 0;
+    var mover = document.getElementById('move-this');
+    chiral(function(delta) {
+      translateX += delta.translateX;
+      translateY += delta.translateY;
+      scale *= delta.scale;
+      rotate += delta.rotate;
+      mover.style.transform =
+        'translate(' + translateX +'px, ' + translateY + 'px) '+
+        'scale('+scale+') rotate('+rotate+'rad)';
+    }).attach(window);
+    function captureAndPreventDefault(e) {
+      mover.setPointerCapture(e.pointerId);
+      return e.preventDefault();
+    }
+    mover.addEventListener('pointerdown', captureAndPreventDefault);
+    mover.addEventListener('pointermove', captureAndPreventDefault);
+  </script>
+</body>
+</html>
