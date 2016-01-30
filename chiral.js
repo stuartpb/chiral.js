@@ -44,7 +44,8 @@ function chiral(opts) {
   }
 
   function comparePoints(m, n) {
-    return angleFromMean(m) - angleFromMean(n);
+    var diff = angleFromMean(m) - angleFromMean(n);
+    return diff || (m.y - n.y) || (m.x - n.x);
   }
 
   var PI = Math.PI;
@@ -186,7 +187,7 @@ function chiral(opts) {
         translateX: thisCentroidX - lastCentroidX,
         translateY: thisCentroidY - lastCentroidY,
         scale: thisPerimeter / lastPerimeter,
-        rotate: signedAngle(thisAngularSum - lastAngularSum)
+        rotate: signedAngle(thisAngularSum - lastAngularSum) / points.length
       };
 
       lastCentroidX = thisCentroidX;
