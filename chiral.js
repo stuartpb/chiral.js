@@ -15,8 +15,8 @@ function chiral(opts) {
   var lastCentroidY;
   var thisCentroidX;
   var thisCentroidY;
-  var lastArea;
-  var thisArea;
+  var lastPerimeter;
+  var thisPerimeter;
   var sumX;
   var sumY;
 
@@ -50,17 +50,19 @@ function chiral(opts) {
       x1 = point1.x;
       y1 = point1.y;
     }
-    function iterate() {
-      var a = x0*y1 - x1*y0;
-      thisArea += a;
-      thisCentroidX += (x0 + x1)*a;
-      thisCentroidY += (y0 + y1)*a;
-    }
 
     loadxy(points[0], points[1]);
-    thisArea = x0*y1 - x1*y0;
-    thisCentroidX = (x0 + x1)*thisArea;
-    thisCentroidY = (y0 + y1)*thisArea;
+    var signedArea = x0*y1 - x1*y0;
+    thisCentroidX = (x0 + x1)*signedArea;
+    thisCentroidY = (y0 + y1)*signedArea;
+    thisPerimeter = Math.sqrt(Math.abs(x0-x1)+Math.abs(y0-y1));
+    function iterate() {
+      var a = x0*y1 - x1*y0;
+      signedArea += a;
+      thisCentroidX += (x0 + x1)*a;
+      thisCentroidY += (y0 + y1)*a;
+      thisPerimeter += Math.sqrt(Math.abs(x0-x1)+Math.abs(y0-y1));
+    }
     for (var i = 1; i < limit; ++i) {
       loadxy(points[i], points[i+1]);
       iterate();
@@ -68,9 +70,9 @@ function chiral(opts) {
     loadxy(points[limit], points[0]);
     iterate();
 
-    thisArea *= 0.5;
-    thisCentroidX /= (6.0*thisArea);
-    thisCentroidY /= (6.0*thisArea);
+    signedArea *= 0.5;
+    thisCentroidX /= (6.0*signedArea);
+    thisCentroidY /= (6.0*signedArea);
   }
 
   function insert(e) {
@@ -88,13 +90,13 @@ function chiral(opts) {
       points[1] = thisPoint;
       lastCentroidX = sumX / 2;
       lastCentroidY = sumY / 2;
-      // for lines "area" is the square length
-      lastArea = Math.abs(thisPoint.x - points[0].x) +
+      // for lines "perimeter" is the square length
+      lastPerimeter = Math.abs(thisPoint.x - points[0].x) +
         Math.abs(thisPoint.y - points[0].y);
     } else {
       points[points.length] = thisPoint;
       polyRecalc();
-      lastArea = thisArea;
+      lastPerimeter = thisPerimeter;
       lastCentroidX = thisCentroidX;
       lastCentroidY = thisCentroidY;
     }
@@ -130,14 +132,14 @@ function chiral(opts) {
       sumY += thisY - thisPoint.y;
       thisCentroidX = sumX / 2;
       thisCentroidY = sumY / 2;
-      // for lines "area" is the square length
-      thisArea = Math.abs(thisX - otherPoint.x) +
+      // for lines "perimeter" is the square length
+      thisPerimeter = Math.abs(thisX - otherPoint.x) +
         Math.abs(thisY - otherPoint.y);
 
       transform = {
         translateX: thisCentroidX - lastCentroidX,
         translateY: thisCentroidY - lastCentroidY,
-        scale: Math.sqrt(thisArea / lastArea),
+        scale: Math.sqrt(thisPerimeter / lastPerimeter),
         rotate: thisAngle - lastAngle
       };
 
@@ -145,7 +147,7 @@ function chiral(opts) {
       thisPoint.y = thisY;
       lastCentroidX = thisCentroidX;
       lastCentroidY = thisCentroidY;
-      lastArea = thisArea;
+      lastPerimeter = thisPerimeter;
       return transformListener(transform);
     } else {
       thisPoint = points[thisPointIndex];
@@ -165,13 +167,13 @@ function chiral(opts) {
       transform = {
         translateX: thisCentroidX - lastCentroidX,
         translateY: thisCentroidY - lastCentroidY,
-        scale: Math.sqrt(thisArea / lastArea),
-        rotate: (thisAngle - lastAngle) / (points.length*2)
+        scale: Math.sqrt(thisPerimeter / lastPerimeter),
+        rotate: thisAngle - lastAngle
       };
 
       lastCentroidX = thisCentroidX;
       lastCentroidY = thisCentroidY;
-      lastArea = thisArea;
+      lastPerimeter = thisPerimeter;
       return transformListener(transform);
     }
   }
@@ -184,12 +186,12 @@ function chiral(opts) {
       polyRecalc();
       lastCentroidX = thisCentroidX;
       lastCentroidY = thisCentroidY;
-      lastArea = thisArea;
+      lastPerimeter = thisPerimeter;
     } else if (points.length == 2) {
-      lastCentroidX = Math.abs(points[1].x - points[0].x);
-      lastCentroidY = Math.abs(points[1].y - points[0].y);
-      // for lines "area" is the square length
-      lastArea = Math.abs(points[0].x - points[1].x) +
+      lastCentroidX = sumX / 2;
+      lastCentroidY = sumY / 2;
+      // for lines "perimeter" is the square length
+      lastPerimeter = Math.abs(points[0].x - points[1].x) +
         Math.abs(points[0].y - points[1].y);
     } else if (points.length == 0) {
       if (endListener) return endListener();
