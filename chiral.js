@@ -178,7 +178,7 @@ function chiral(opts) {
       transform = {
         translateX: thisCentroidX - lastCentroidX,
         translateY: thisCentroidY - lastCentroidY,
-        scale: Math.sqrt(thisPerimeter / lastPerimeter),
+        scale: thisPerimeter / lastPerimeter,
         rotate: thisAngularSum - lastAngularSum
       };
 
