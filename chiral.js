@@ -34,7 +34,7 @@ function chiral(opts) {
   function angleFromMean(point) {
     return Math.atan2(
       point.y - sumY / points.length,
-      point.x - sumX / points.length) + Math.PI;
+      point.x - sumX / points.length) + PI;
   }
 
   function angleFromCentroid(point) {
@@ -45,6 +45,13 @@ function chiral(opts) {
 
   function comparePoints(m, n) {
     return angleFromMean(m) - angleFromMean(n);
+  }
+
+  var PI = Math.PI;
+  var TAU = 2*PI;
+  var THREEPI = 3*PI;
+  function signedAngle(a) {
+    return (a % TAU + THREEPI) % TAU - PI;
   }
 
   function polyRecalc() {
@@ -155,7 +162,7 @@ function chiral(opts) {
         translateX: thisCentroidX - lastCentroidX,
         translateY: thisCentroidY - lastCentroidY,
         scale: Math.sqrt(thisPerimeter / lastPerimeter),
-        rotate: thisAngle - lastAngle
+        rotate: signedAngle(thisAngle - lastAngle)
       };
 
       thisPoint.x = thisX;
@@ -179,7 +186,7 @@ function chiral(opts) {
         translateX: thisCentroidX - lastCentroidX,
         translateY: thisCentroidY - lastCentroidY,
         scale: thisPerimeter / lastPerimeter,
-        rotate: thisAngularSum - lastAngularSum
+        rotate: signedAngle(thisAngularSum - lastAngularSum)
       };
 
       lastCentroidX = thisCentroidX;
