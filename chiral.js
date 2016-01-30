@@ -19,8 +19,8 @@ function chiral(opts) {
   var thisPerimeter;
   var lastAngularSum;
   var thisAngularSum;
-  var sumX;
-  var sumY;
+  var sumX = 0;
+  var sumY = 0;
 
   function findPointId(id) {
     for (var i = 0; i < points.length; ++i) {
@@ -95,8 +95,8 @@ function chiral(opts) {
       x: e.clientX,
       y: e.clientY
     };
-    sumX = thisPoint.x;
-    sumY = thisPoint.y;
+    sumX += thisPoint.x;
+    sumY += thisPoint.y;
     if (points.length == 0) {
       points[0] = thisPoint;
       if (startListener) return startListener();
