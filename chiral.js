@@ -17,6 +17,8 @@ function chiral(opts) {
   var thisCentroidY;
   var lastPerimeter;
   var thisPerimeter;
+  var lastAngularSum;
+  var thisAngularSum;
   var sumX;
   var sumY;
 
@@ -35,11 +37,18 @@ function chiral(opts) {
       point.x - sumX / points.length) + Math.PI;
   }
 
+  function angleFromCentroid(point) {
+    return Math.atan2(
+      point.y - thisCentroidY,
+      point.x - thisCentroidX);
+  }
+
   function comparePoints(m, n) {
     return angleFromMean(m) - angleFromMean(n);
   }
 
   function polyRecalc() {
+    var i;
     points.sort(comparePoints);
     var limit = points.length - 1;
 
@@ -63,7 +72,7 @@ function chiral(opts) {
       thisCentroidY += (y0 + y1)*a;
       thisPerimeter += Math.sqrt(Math.abs(x0-x1)+Math.abs(y0-y1));
     }
-    for (var i = 1; i < limit; ++i) {
+    for (i = 1; i < limit; ++i) {
       loadxy(points[i], points[i+1]);
       iterate();
     }
@@ -73,6 +82,11 @@ function chiral(opts) {
     signedArea *= 0.5;
     thisCentroidX /= (6.0*signedArea);
     thisCentroidY /= (6.0*signedArea);
+
+    thisAngularSum = angleFromCentroid(points[0]);
+    for (i = 1; i < points.length; ++i) {
+      thisAngularSum = angleFromCentroid(points[i]);
+    }
   }
 
   function insert(e) {
@@ -99,6 +113,7 @@ function chiral(opts) {
       lastPerimeter = thisPerimeter;
       lastCentroidX = thisCentroidX;
       lastCentroidY = thisCentroidY;
+      lastAngularSum = thisAngularSum;
     }
   }
 
@@ -153,27 +168,24 @@ function chiral(opts) {
       thisPoint = points[thisPointIndex];
       var lastX = thisPoint.x;
       var lastY = thisPoint.y;
-      lastAngle = Math.atan2(
-        lastY - lastCentroidY, lastX - lastCentroidX);
 
       thisPoint.x = thisX;
       thisPoint.y = thisY;
       sumX += thisX - lastX;
       sumY += thisY - lastY;
       polyRecalc();
-      thisAngle = Math.atan2(
-        thisY - thisCentroidY, thisX - thisCentroidX);
 
       transform = {
         translateX: thisCentroidX - lastCentroidX,
         translateY: thisCentroidY - lastCentroidY,
         scale: Math.sqrt(thisPerimeter / lastPerimeter),
-        rotate: thisAngle - lastAngle
+        rotate: thisAngularSum - lastAngularSum
       };
 
       lastCentroidX = thisCentroidX;
       lastCentroidY = thisCentroidY;
       lastPerimeter = thisPerimeter;
+      lastAngularSum = thisAngularSum;
       return transformListener(transform);
     }
   }
@@ -187,6 +199,7 @@ function chiral(opts) {
       lastCentroidX = thisCentroidX;
       lastCentroidY = thisCentroidY;
       lastPerimeter = thisPerimeter;
+      lastAngularSum = thisAngularSum;
     } else if (points.length == 2) {
       lastCentroidX = sumX / 2;
       lastCentroidY = sumY / 2;
