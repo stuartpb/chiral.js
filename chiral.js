@@ -85,7 +85,7 @@ function chiral(opts) {
 
     thisAngularSum = angleFromCentroid(points[0]);
     for (i = 1; i < points.length; ++i) {
-      thisAngularSum = angleFromCentroid(points[i]);
+      thisAngularSum += angleFromCentroid(points[i]);
     }
   }
 
