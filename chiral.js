@@ -102,12 +102,12 @@ function chiral(opts) {
     }
   }
 
-  function squareLength() {
+  function twoPointLength() {
     var m = points[0];
     var n = points[1];
     var a = m.x - n.x;
     var b = m.y - n.y;
-    return a*a + b*b;
+    return Math.sqrt(a*a + b*b);
   }
 
   function insert(e) {
@@ -125,7 +125,7 @@ function chiral(opts) {
       points[1] = thisPoint;
       lastCentroidX = sumX / 2;
       lastCentroidY = sumY / 2;
-      lastPerimeter = squareLength();
+      lastPerimeter = twoPointLength();
     } else {
       points[points.length] = thisPoint;
       polyRecalc();
@@ -168,12 +168,12 @@ function chiral(opts) {
       thisCentroidY = sumY / 2;
       thisPoint.x = thisX;
       thisPoint.y = thisY;
-      thisPerimeter = squareLength();
+      thisPerimeter = twoPointLength();
 
       transform = {
         translateX: thisCentroidX - lastCentroidX,
         translateY: thisCentroidY - lastCentroidY,
-        scale: Math.sqrt(thisPerimeter / lastPerimeter),
+        scale: thisPerimeter / lastPerimeter,
         rotate: signedAngle(thisAngle - lastAngle)
       };
 
@@ -220,7 +220,7 @@ function chiral(opts) {
     } else if (points.length == 2) {
       lastCentroidX = sumX / 2;
       lastCentroidY = sumY / 2;
-      lastPerimeter = squareLength();
+      lastPerimeter = twoPointLength();
     } else if (points.length == 0) {
       if (endListener) return endListener();
     }
