@@ -61,39 +61,25 @@ function chiral(opts) {
     var i;
     points.sort(comparePoints);
     var limit = points.length - 1;
-
-    var x0, y0, x1, y1, xd, yd;
-    function loadxy(point0, point1) {
-      x0 = point0.x;
-      y0 = point0.y;
-      x1 = point1.x;
-      y1 = point1.y;
-      xd = x0 - x1;
-      yd = y0 - y1;
-    }
-
-    loadxy(points[0], points[1]);
-    var signedArea = x0*y1 - x1*y0;
-    thisCentroidX = (x0 + x1)*signedArea;
-    thisCentroidY = (y0 + y1)*signedArea;
-    thisPerimeter = xd*xd + yd*yd;
-    function iterate() {
-      var a = x0*y1 - x1*y0;
+    var signedArea = thisCentroidX = thisCentroidY = thisPerimeter = 0;
+    function vert(point0, point1) {
+      var x0 = point0.x, y0 = point0.y,
+        x1 = point1.x, y1 = point1.y;
+      var xd = x0 - x1, yd = y0 - y1,
+        a = x0*y1 - x1*y0;
       signedArea += a;
       thisCentroidX += (x0 + x1)*a;
       thisCentroidY += (y0 + y1)*a;
       thisPerimeter += xd*xd + yd*yd;
     }
-    for (i = 1; i < limit; ++i) {
-      loadxy(points[i], points[i+1]);
-      iterate();
+    for (i = 0; i < limit; ++i) {
+      vert(points[i], points[i+1]);
     }
-    loadxy(points[limit], points[0]);
-    iterate();
+    vert(points[limit], points[0]);
 
-    signedArea *= 0.5;
-    thisCentroidX /= (6.0*signedArea);
-    thisCentroidY /= (6.0*signedArea);
+    signedArea *= 3; // 2*signedArea => 6*signedArea
+    thisCentroidX /= signedArea;
+    thisCentroidY /= signedArea;
     thisPerimeter = Math.sqrt(thisPerimeter);
 
     thisAngularSum = angleFromCentroid(points[0]);
