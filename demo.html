@@ -12,7 +12,6 @@
     var translateX = 0, translateY = 0, scale = 1, rotate = 0;
     var mover = document.getElementById('move-this');
     chiral(function(delta) {
-      console.log(delta);
       translateX += delta.translateX;
       translateY += delta.translateY;
       scale *= delta.scale;
