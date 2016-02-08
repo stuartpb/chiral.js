@@ -44,8 +44,10 @@ function chiral(opts) {
   }
 
   function comparePoints(m, n) {
-    var diff = angleFromMean(m) - angleFromMean(n);
-    return diff || (m.y - n.y) || (m.x - n.x);
+    var mangle = angleFromMean(m);
+    return mangle - angleFromMean(n) || (angleFromMean < PI
+      ? (m.y - n.y) || (m.x - n.x)
+      : (n.y - m.y) || (n.x - m.x));
   }
 
   var PI = Math.PI;
@@ -97,6 +99,14 @@ function chiral(opts) {
     }
   }
 
+  function squareLength() {
+    var m = points[0];
+    var n = points[1];
+    var a = m.x - n.x;
+    var b = m.y - n.y;
+    return a*a + b*b;
+  }
+
   function insert(e) {
     var thisPoint = {
       id: e.pointerId,
@@ -112,9 +122,7 @@ function chiral(opts) {
       points[1] = thisPoint;
       lastCentroidX = sumX / 2;
       lastCentroidY = sumY / 2;
-      // for lines "perimeter" is the square length
-      lastPerimeter = Math.abs(thisPoint.x - points[0].x) +
-        Math.abs(thisPoint.y - points[0].y);
+      lastPerimeter = squareLength();
     } else {
       points[points.length] = thisPoint;
       polyRecalc();
@@ -155,9 +163,9 @@ function chiral(opts) {
       sumY += thisY - thisPoint.y;
       thisCentroidX = sumX / 2;
       thisCentroidY = sumY / 2;
-      // for lines "perimeter" is the square length
-      thisPerimeter = Math.abs(thisX - otherPoint.x) +
-        Math.abs(thisY - otherPoint.y);
+      thisPoint.x = thisX;
+      thisPoint.y = thisY;
+      thisPerimeter = squareLength();
 
       transform = {
         translateX: thisCentroidX - lastCentroidX,
@@ -166,8 +174,6 @@ function chiral(opts) {
         rotate: signedAngle(thisAngle - lastAngle)
       };
 
-      thisPoint.x = thisX;
-      thisPoint.y = thisY;
       lastCentroidX = thisCentroidX;
       lastCentroidY = thisCentroidY;
       lastPerimeter = thisPerimeter;
@@ -211,9 +217,7 @@ function chiral(opts) {
     } else if (points.length == 2) {
       lastCentroidX = sumX / 2;
       lastCentroidY = sumY / 2;
-      // for lines "perimeter" is the square length
-      lastPerimeter = Math.abs(points[0].x - points[1].x) +
-        Math.abs(points[0].y - points[1].y);
+      lastPerimeter = squareLength();
     } else if (points.length == 0) {
       if (endListener) return endListener();
     }
